@@ -1,1 +1,14 @@
+spring:
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
 
+spring.sql.init.platform: mysql
+
+spring.profiles.include: secret
