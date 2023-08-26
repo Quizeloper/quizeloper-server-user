@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatusCode;
 
 import static com.cs.quizeloper.global.exception.BaseResponseStatus.SUCCESS;
 
@@ -26,6 +27,10 @@ public class BaseResponse<T> {
     public BaseResponse(BaseResponseStatus status) {
         this.message = status.getMessage();
         this.code = status.getStatus().value();
+    }
 
+    public BaseResponse(int code, String message) {
+        this.message = message;
+        this.code = code;
     }
 }
