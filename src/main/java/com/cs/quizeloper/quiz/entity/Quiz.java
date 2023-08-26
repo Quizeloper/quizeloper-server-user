@@ -1,6 +1,7 @@
 package com.cs.quizeloper.quiz.entity;
 
 import com.cs.quizeloper.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,13 +38,18 @@ public class Quiz extends BaseEntity {
     @Column(nullable = false)
     private String solving;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "quiz_unit_id")
+    private QuizUnit quizUnit;
+
     @Builder
-    public Quiz(String title, String content, QuizType type, Stack stackUnit, String answer, String solving) {
+    public Quiz(String title, String content, QuizType type, Stack stackUnit, String answer, String solving, QuizUnit quizUnit) {
         this.title = title;
         this.content = content;
         this.type = type;
         this.stackUnit = stackUnit;
         this.answer = answer;
         this.solving = solving;
+        this.quizUnit = quizUnit;
     }
 }
