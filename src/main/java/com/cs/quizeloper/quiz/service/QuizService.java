@@ -6,9 +6,9 @@ import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.quiz.model.GetPagedQuizRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -25,28 +25,31 @@ public class QuizService {
     private final QuizLikeRepository quizLikeRepository;
 
     // 퀴즈 전체 목록 조회
-    public GetPagedQuizRes getQuizList(int size, int page) {
-        List<Quiz> quizList= quizRepository.findAllByStatus(ACTIVE);
-        List<Long> quizLikes = quizLikeRepository.findAllByUserAndStatus(1L, ACTIVE);
+    @Transactional
+    public GetPagedQuizRes getQuizList(PageRequest pageRequest) {
+        Page<Quiz> pagingQuiz = quizRepository.findAllByStatus(ACTIVE, pageRequest);
+        Page<Long> quizLikes = quizLikeRepository.findAllByUserAndStatus(1L, ACTIVE, pageRequest);
 
-        if(page > quizList.size()/size){
+        int total = pagingQuiz.getTotalPages();
+        int page = pageRequest.getPageNumber();
+        boolean nextPage = pagingQuiz.hasNext();
+
+        if(total <= page){
             throw new BaseException(PAGE_COUNT_OVER);
         }
 
-        PageRequest pageRequest = PageRequest.of(page, size);
-        int start = (int) pageRequest.getOffset();
-        int end = Math.min((start + pageRequest.getPageSize()), quizList.size());
-
-        Page<Quiz> pagingQuiz = new PageImpl<>(quizList.subList(start, end), pageRequest, quizList.size());
-
-        int total = quizList.size();
-
-        List<GetQuizRes> quizResList = pagingQuiz.getContent().stream()
-                .map(quiz -> new GetQuizRes(quiz.getTitle(), quiz.getType(), quiz.getStackUnit(), quiz.getQuizUnit().getId(),
-                        checkUserLikesQuiz(quizLikes, quiz)))
+        // List 형식의 QuizUnit 값 String 배열에 담기
+        List<String> quizString = pagingQuiz.getContent().stream()
+                .flatMap(q -> q.getQuizUnitList().stream().map(q2 -> String.valueOf(q2.getQuizUnit().getUnit())))
                 .collect(Collectors.toList());
 
-        return new GetPagedQuizRes(quizResList, total, page);
+        // 최종적으로 DTO에 반환
+        List<GetQuizRes> quizResList = pagingQuiz.getContent().stream()
+                .map(quiz -> new GetQuizRes(quiz.getId(), quiz.getTitle(), quiz.getType(), quiz.getStackUnit(), quizString,
+                        checkUserLikesQuiz(quizLikes.toList(), quiz)))
+                .collect(Collectors.toList());
+
+        return new GetPagedQuizRes(quizResList, total, page, nextPage);
     }
 
     // 퀴즈 좋아요 확인 여부
