@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.List;
+
 @Getter
 @DynamicInsert
 @DynamicUpdate
@@ -38,18 +40,16 @@ public class Quiz extends BaseEntity {
     @Column(nullable = false)
     private String solving;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "quiz_unit_id")
-    private QuizUnit quizUnit;
+    @OneToMany(mappedBy = "quiz")
+    private List<QuizUnitList> quizUnitList;
 
     @Builder
-    public Quiz(String title, String content, QuizType type, Stack stackUnit, String answer, String solving, QuizUnit quizUnit) {
+    public Quiz(String title, String content, QuizType type, Stack stackUnit, String answer, String solving) {
         this.title = title;
         this.content = content;
         this.type = type;
         this.stackUnit = stackUnit;
         this.answer = answer;
         this.solving = solving;
-        this.quizUnit = quizUnit;
     }
 }

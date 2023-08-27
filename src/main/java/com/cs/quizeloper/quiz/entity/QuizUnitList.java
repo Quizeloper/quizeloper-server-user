@@ -19,15 +19,16 @@ public class QuizUnitList extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "quiz_id")
+    private Quiz quiz;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "quiz_unit_id")
     private QuizUnit quizUnit;
 
-    @Column(nullable = false)
-    private String unitName;
-
     @Builder
-    public QuizUnitList(QuizUnit quizUnit, String unitName){
+    public QuizUnitList(Quiz quiz, QuizUnit quizUnit){
+        this.quiz = quiz;
         this.quizUnit = quizUnit;
-        this.unitName = unitName;
     }
 }
