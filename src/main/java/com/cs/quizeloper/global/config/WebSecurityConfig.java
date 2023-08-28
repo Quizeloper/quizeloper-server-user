@@ -3,6 +3,7 @@ package com.cs.quizeloper.global.config;
 import com.cs.quizeloper.global.resolver.LoginResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
+@Configuration
 public class WebSecurityConfig implements WebMvcConfigurer {
     private final LoginResolver loginResolver;
 

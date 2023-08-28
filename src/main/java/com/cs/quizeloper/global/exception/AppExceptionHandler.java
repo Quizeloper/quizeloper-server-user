@@ -2,10 +2,11 @@ package com.cs.quizeloper.global.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Objects;
 
 @RestControllerAdvice
 public class AppExceptionHandler {
@@ -18,6 +19,6 @@ public class AppExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<BaseResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new BaseResponse<>(e.getStatusCode().value(), e.getMessage()));
+                .body(new BaseResponse<>(e.getStatusCode().value(), Objects.requireNonNull(e.getFieldError()).getDefaultMessage()));
     }
 }

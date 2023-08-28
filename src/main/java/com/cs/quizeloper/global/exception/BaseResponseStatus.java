@@ -17,6 +17,8 @@ public enum BaseResponseStatus {
 
     // user
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다. "),
+    DUPLICATE_USER_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다. "),
+    DUPLICATE_USER_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다. "),
 
     PAGE_COUNT_UNDER(HttpStatus.NOT_FOUND,"페이지는 0 이하로 입력할 수 없습니다."),
     PAGE_SIZE_COUNT_UNDER(HttpStatus.NOT_FOUND,"페이지에 들어가는 개수는 1 이하로 입력할 수 없습니다."),
