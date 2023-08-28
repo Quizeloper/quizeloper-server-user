@@ -2,9 +2,10 @@ package com.cs.quizeloper.quiz.controller;
 
 import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponse;
-import com.cs.quizeloper.quiz.model.GetPagedQuizRes;
+import com.cs.quizeloper.quiz.model.GetQuizRes;
 import com.cs.quizeloper.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,8 @@ public class QuizController {
      */
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<GetPagedQuizRes> getQuizList(@RequestParam(name = "size", defaultValue = "16") Integer size,
-                                                     @RequestParam(name = "page", defaultValue = "0") Integer page) {
+    public BaseResponse<Page<GetQuizRes>> getQuizList(@RequestParam(name = "size", defaultValue = "16") Integer size,
+                                                      @RequestParam(name = "page", defaultValue = "0") Integer page) {
         try {
             if (page < 0) {
                 return new BaseResponse<>(PAGE_COUNT_UNDER);
@@ -33,7 +34,8 @@ public class QuizController {
                 return new BaseResponse<>(PAGE_SIZE_COUNT_UNDER);
             }
             PageRequest pageRequest = PageRequest.of(page, size);
-            return new BaseResponse<>(quizService.getQuizList(pageRequest));
+            Page<GetQuizRes> quizPage = quizService.getQuizList(pageRequest);
+            return new BaseResponse<>(quizPage);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

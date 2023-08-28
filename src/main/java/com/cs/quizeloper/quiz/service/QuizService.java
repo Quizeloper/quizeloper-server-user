@@ -1,14 +1,13 @@
 package com.cs.quizeloper.quiz.service;
 
-import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
 import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.entity.*;
-import com.cs.quizeloper.quiz.model.GetPagedQuizRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
-import static com.cs.quizeloper.global.exception.BaseResponseStatus.PAGE_COUNT_OVER;
 
 @Service
 @RequiredArgsConstructor
@@ -26,21 +24,13 @@ public class QuizService {
 
     // 퀴즈 전체 목록 조회
     @Transactional
-    public GetPagedQuizRes getQuizList(PageRequest pageRequest) {
+    public Page<GetQuizRes> getQuizList(PageRequest pageRequest) {
         Page<Quiz> pagingQuiz = quizRepository.findAllByStatus(ACTIVE, pageRequest);
         Page<Long> quizLikes = quizLikeRepository.findAllByUserAndStatus(1L, ACTIVE, pageRequest);
 
-        int total = pagingQuiz.getTotalPages();
-        int page = pageRequest.getPageNumber();
-        boolean nextPage = pagingQuiz.hasNext();
-
-        if(total <= page){
-            throw new BaseException(PAGE_COUNT_OVER);
-        }
-
         // List 형식의 QuizUnit 값 String 배열에 담기
         List<String> quizString = pagingQuiz.getContent().stream()
-                .flatMap(quiz -> quiz.getQuizUnitList().stream().map(qUnit -> qUnit.getQuizUnit()))
+                .flatMap(quiz -> quiz.getQuizUnitList().stream().map(QuizUnitList::getQuizUnit))
                 .map(quizUnit -> String.valueOf(quizUnit.getUnit()))
                 .collect(Collectors.toList());
 
@@ -50,7 +40,7 @@ public class QuizService {
                         checkUserLikesQuiz(quizLikes.toList(), quiz)))
                 .collect(Collectors.toList());
 
-        return new GetPagedQuizRes(quizResList, total, page, nextPage);
+        return new PageImpl<>(quizResList, pageRequest, pagingQuiz.getTotalElements());
     }
 
     // 퀴즈 좋아요 확인 여부
