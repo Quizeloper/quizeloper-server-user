@@ -40,7 +40,8 @@ public class QuizService {
 
         // List 형식의 QuizUnit 값 String 배열에 담기
         List<String> quizString = pagingQuiz.getContent().stream()
-                .flatMap(q -> q.getQuizUnitList().stream().map(q2 -> String.valueOf(q2.getQuizUnit().getUnit())))
+                .flatMap(quiz -> quiz.getQuizUnitList().stream().map(qUnit -> qUnit.getQuizUnit()))
+                .map(quizUnit -> String.valueOf(quizUnit.getUnit()))
                 .collect(Collectors.toList());
 
         // 최종적으로 DTO에 반환
