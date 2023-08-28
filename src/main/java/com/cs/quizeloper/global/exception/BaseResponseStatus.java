@@ -17,6 +17,7 @@ public enum BaseResponseStatus {
 
     // user
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다. "),
+    INVALID_USER_PASSWORD(HttpStatus.NOT_FOUND, "비밀번호가 일치하지 않습니다. "),
     DUPLICATE_USER_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다. "),
     DUPLICATE_USER_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다. "),
 

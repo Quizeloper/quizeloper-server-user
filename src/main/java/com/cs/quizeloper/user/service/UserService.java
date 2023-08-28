@@ -6,6 +6,7 @@ import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.JwtService;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
 import com.cs.quizeloper.user.Repository.UserRepository;
+import com.cs.quizeloper.user.dto.LoginReq;
 import com.cs.quizeloper.user.dto.SignupReq;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
@@ -32,4 +33,9 @@ public class UserService {
         return jwtService.createToken(user.getId(), user.getRole());
     }
 
+    public TokenDto login(LoginReq loginReq) {
+        User user = userRepository.findByEmailAndStatus(loginReq.getEmail(), BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        if(!passwordEncoder.matches(loginReq.getPassword(), user.getPassword())) throw new BaseException(BaseResponseStatus.INVALID_USER_PASSWORD);
+        return jwtService.createToken(user.getId(), user.getRole());
+    }
 }
