@@ -26,10 +26,15 @@ public class User extends BaseEntity {
     @Column
     private String imgKey;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Builder
-    public User(String email, String password, String imgKey) {
+    public User(String email, String password, String imgKey, Role role) {
         this.email = email;
         this.password = password;
         this.imgKey = imgKey;
+        this.role = role;
     }
 }
