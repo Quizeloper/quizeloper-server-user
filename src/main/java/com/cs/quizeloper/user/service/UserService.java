@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -37,5 +39,20 @@ public class UserService {
         User user = userRepository.findByEmailAndStatus(loginReq.getEmail(), BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
         if(!passwordEncoder.matches(loginReq.getPassword(), user.getPassword())) throw new BaseException(BaseResponseStatus.INVALID_USER_PASSWORD);
         return jwtService.createToken(user.getId(), user.getRole());
+    }
+
+    public TokenDto reissue(TokenDto tokenDto) {
+        // delete bearer context
+        tokenDto.toReplaceDto();
+        // validate refresh token
+        jwtService.validateToken(tokenDto.getRefreshToken());
+        // get user info
+        Long userId = jwtService.getUserIdFromJWT(tokenDto.getAccessToken());
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // validate refresh token
+        jwtService.validateRefreshToken(userId, tokenDto.getRefreshToken());
+        jwtService.deleteRefreshToken(userId);
+
+        return jwtService.createToken(userId, user.getRole());
     }
 }

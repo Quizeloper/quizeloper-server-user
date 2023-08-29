@@ -85,4 +85,13 @@ public class JwtService {
         String userId = (String) parseClaims(accessToken).get(Constant.Jwt.CLAIM_NAME);
         return Long.parseLong(userId);
     }
+
+    public void validateRefreshToken(Long userId, String refreshToken){
+        String redisToken = redisService.getValue(userId.toString());
+        if(redisToken == null || !redisToken.equals(refreshToken)) throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
+    }
+
+    public void deleteRefreshToken(Long userId) {
+        if(redisService.getValue(userId.toString()) != null) redisService.deleteValue(userId.toString());
+    }
 }
