@@ -4,6 +4,7 @@ import com.cs.quizeloper.global.constant.Constant;
 import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
+import com.cs.quizeloper.global.service.RedisService;
 import com.cs.quizeloper.user.entity.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 
 import static com.cs.quizeloper.global.constant.Constant.Jwt.BEARER_PREFIX;
@@ -25,9 +27,12 @@ public class JwtService {
 
     private final Key key;
 
-    public JwtService(@Value("${jwt.secret}") String secretKey) {
+    private final RedisService redisService;
+
+    public JwtService(@Value("${jwt.secret}") String secretKey, RedisService redisService) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.redisService = redisService;
     }
 
     // token 생성
@@ -45,8 +50,7 @@ public class JwtService {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // todo redis refresh token 적용
-
+        redisService.setValue(userIdx.toString(), refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
         return TokenDto.toDto(BEARER_PREFIX + accessToken, BEARER_PREFIX + refreshToken, role);
     }
 
@@ -80,5 +84,14 @@ public class JwtService {
     public Long getUserIdFromJWT(String accessToken){
         String userId = (String) parseClaims(accessToken).get(Constant.Jwt.CLAIM_NAME);
         return Long.parseLong(userId);
+    }
+
+    public void validateRefreshToken(Long userId, String refreshToken){
+        String redisToken = redisService.getValue(userId.toString());
+        if(redisToken == null || !redisToken.equals(refreshToken)) throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
+    }
+
+    public void deleteRefreshToken(Long userId) {
+        if(redisService.getValue(userId.toString()) != null) redisService.deleteValue(userId.toString());
     }
 }

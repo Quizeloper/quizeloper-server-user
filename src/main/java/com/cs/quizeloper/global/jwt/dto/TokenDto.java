@@ -1,5 +1,6 @@
 package com.cs.quizeloper.global.jwt.dto;
 
+import com.cs.quizeloper.global.constant.Constant;
 import com.cs.quizeloper.user.entity.Role;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,10 @@ public class TokenDto {
                 .refreshToken(refreshToken)
                 .role(role)
                 .build();
+    }
+
+    public void toReplaceDto(){
+        accessToken = accessToken.replace(Constant.Jwt.BEARER_PREFIX, "");
+        refreshToken = refreshToken.replace(Constant.Jwt.BEARER_PREFIX, "");
     }
 }
