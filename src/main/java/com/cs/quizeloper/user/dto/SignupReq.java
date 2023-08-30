@@ -16,8 +16,8 @@ public class SignupReq {
     private String password;
     @NotBlank(message = "닉네임을 입력해주세요.")
     @Pattern(
-            regexp = "^[가-힣ㄱ-ㅎa-zA-Z0-9._-]{6,}\\$",
-            message = "닉네임을 숫자, 문자를 포함하여 6자리 이상으로 입력해주세요 "
+            regexp = "^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{6,}$",
+            message = "닉네임을 숫자, 문자를 사용하여 6자리 이상으로 입력해주세요 "
     )
     private String nickname;
 }
