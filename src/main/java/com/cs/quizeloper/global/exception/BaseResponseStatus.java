@@ -12,7 +12,8 @@ public enum BaseResponseStatus {
     UNSUPPORTED_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 형식의 토큰 값입니다."),
     MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 구조의 토큰 값입니다."),
     EXPIRED_TOKEN(HttpStatus.FORBIDDEN, "만료된 토큰 값입니다."),
-    REQUIRED_AUTH_ANNOTATION(HttpStatus.FORBIDDEN, "auth annotation 을 붙여주세요."),
+    BLACKLIST_TOKEN(HttpStatus.FORBIDDEN, "로그아웃 혹은 회원 탈퇴된 토큰입니다."),
+    REQUIRED_AUTH_ANNOTATION(HttpStatus.INTERNAL_SERVER_ERROR, "auth annotation 을 붙여주세요."),
     NOT_ACCESS_HEADER(HttpStatus.INTERNAL_SERVER_ERROR, "헤더에 접근할 수 없습니다."),
 
     // user

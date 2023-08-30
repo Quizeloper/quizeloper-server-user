@@ -1,6 +1,7 @@
 package com.cs.quizeloper.global.jwt;
 
 import com.cs.quizeloper.global.constant.Constant;
+import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import static com.cs.quizeloper.global.constant.Constant.Jwt.BEARER_PREFIX;
 import static com.cs.quizeloper.global.constant.Constant.Jwt.CLAIM_NAME;
@@ -39,7 +41,7 @@ public class JwtService {
     public TokenDto createToken(Long userIdx, Role role){
         long now = new Date().getTime();
         String accessToken = Jwts.builder()
-                .claim(CLAIM_NAME, userIdx)
+                .claim(CLAIM_NAME, userIdx.toString())
                 .setSubject(userIdx.toString())
                 .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -81,17 +83,37 @@ public class JwtService {
         }
     }
 
+    // 사용자 정보 불러오기
     public Long getUserIdFromJWT(String accessToken){
         String userId = (String) parseClaims(accessToken).get(Constant.Jwt.CLAIM_NAME);
         return Long.parseLong(userId);
     }
 
+    // 토큰 유효성 검사
     public void validateRefreshToken(Long userId, String refreshToken){
         String redisToken = redisService.getValue(userId.toString());
         if(redisToken == null || !redisToken.equals(refreshToken)) throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
     }
 
+    // refreshToken 삭제
     public void deleteRefreshToken(Long userId) {
         if(redisService.getValue(userId.toString()) != null) redisService.deleteValue(userId.toString());
+    }
+
+    // blackList 토큰
+    public void blackListToken(String token, BaseStatus status) {
+        token = token.replace(Constant.Jwt.BEARER_PREFIX, "");
+        Long expiration = getExpiration(token);
+        // blacklist 처리
+        redisService.setValue(token, status.name(), expiration, TimeUnit.MILLISECONDS);
+    }
+
+    // token 시간 불러오기
+    public Long getExpiration(String token) {
+        // accessToken 남은 유효시간
+        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
+        // 현재 시간
+        Long now = new Date().getTime();
+        return (expiration.getTime() - now);
     }
 }
