@@ -74,4 +74,15 @@ public class UserService {
         User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
         isMatchedPassword(password, user.getPassword());
     }
+
+    public void checkDuplicatedEmail(String email) {
+        if (userRepository.existsByEmailAndStatus(email, BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
+
+    }
+
+    public void checkDuplicatedNickname(String nickname) {
+        if (userRepository.existsByNicknameAndStatus(nickname, BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_NICKNAME);
+
+
+    }
 }
