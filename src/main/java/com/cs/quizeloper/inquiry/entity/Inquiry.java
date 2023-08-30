@@ -1,6 +1,7 @@
 package com.cs.quizeloper.inquiry.entity;
 
 import com.cs.quizeloper.global.entity.BaseEntity;
+import com.cs.quizeloper.inquiry.dto.PostInquiryReq;
 import com.cs.quizeloper.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -43,4 +44,24 @@ public class Inquiry extends BaseEntity {
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
+    @Builder
+    public Inquiry(String title, String content, String answer, InquiryType type, String referenceLink, InquiryStatus inquiryStatus, User user) {
+        this.title = title;
+        this.content = content;
+        this.answer = answer;
+        this.type = type;
+        this.referenceLink = referenceLink;
+        this.inquiryStatus = inquiryStatus;
+        this.user = user;
+    }
+
+    public static Inquiry toDto(PostInquiryReq req, User user){
+        return Inquiry.builder()
+                .title(req.getTitle())
+                .content(req.getContent())
+                .referenceLink(req.getLink())
+                .type(InquiryType.getTypeByName(req.getType()))
+                .user(user)
+                .build();
+    }
 }

@@ -16,7 +16,7 @@ public enum InquiryType {
         this.value = value;
     }
 
-    public static InquiryType getProviderByName(String value) {
+    public static InquiryType getTypeByName(String value) {
         return Arrays.stream(InquiryType.values())
                 .filter(r -> r.getValue().equals(value))
                 // todo: exception 처리 필요
