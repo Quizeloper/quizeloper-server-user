@@ -1,5 +1,6 @@
 package com.cs.quizeloper.user.service;
 
+import com.cs.quizeloper.global.constant.Constant;
 import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
@@ -10,11 +11,12 @@ import com.cs.quizeloper.user.dto.LoginReq;
 import com.cs.quizeloper.user.dto.SignupReq;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.io.PrintStream;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +56,15 @@ public class UserService {
         jwtService.deleteRefreshToken(userId);
 
         return jwtService.createToken(userId, user.getRole());
+    }
+
+    public void blackListAccessToken(Long userId, HttpServletRequest request) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // header 에서 토큰 불러오기
+        String bearerToken = request.getHeader(Constant.Jwt.AUTHORIZATION_HEADER);
+        // accessToken blackList 처리
+        jwtService.blackListToken(bearerToken, BaseStatus.LOGOUT);
+        // refreshToken 삭제
+        jwtService.deleteRefreshToken(userId);
     }
 }

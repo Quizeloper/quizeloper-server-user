@@ -1,10 +1,14 @@
 package com.cs.quizeloper.user.controller;
 
 import com.cs.quizeloper.global.exception.BaseResponse;
+import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
+import com.cs.quizeloper.global.resolver.Account;
+import com.cs.quizeloper.global.resolver.UserInfo;
 import com.cs.quizeloper.user.dto.LoginReq;
 import com.cs.quizeloper.user.dto.SignupReq;
 import com.cs.quizeloper.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,5 +38,12 @@ public class UserController {
     @PostMapping("/reissue")
     public BaseResponse<TokenDto> reissue(@RequestBody TokenDto tokenDto){
         return new BaseResponse<>(userService.reissue(tokenDto));
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public BaseResponse<?> logout(@Account UserInfo userInfo, HttpServletRequest request){
+        userService.blackListAccessToken(userInfo.getId(), request);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 }
