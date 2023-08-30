@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.PrintStream;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -39,8 +37,12 @@ public class UserService {
 
     public TokenDto login(LoginReq loginReq) {
         User user = userRepository.findByEmailAndStatus(loginReq.getEmail(), BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
-        if(!passwordEncoder.matches(loginReq.getPassword(), user.getPassword())) throw new BaseException(BaseResponseStatus.INVALID_USER_PASSWORD);
+        isMatchedPassword(loginReq.getPassword(), user.getPassword());
         return jwtService.createToken(user.getId(), user.getRole());
+    }
+
+    private void isMatchedPassword(String password, String userPassword) {
+        if(!passwordEncoder.matches(password, userPassword)) throw new BaseException(BaseResponseStatus.INVALID_USER_PASSWORD);
     }
 
     public TokenDto reissue(TokenDto tokenDto) {
@@ -66,5 +68,10 @@ public class UserService {
         jwtService.blackListToken(bearerToken, BaseStatus.LOGOUT);
         // refreshToken 삭제
         jwtService.deleteRefreshToken(userId);
+    }
+
+    public void isMatchedPassword(Long userId, String password) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        isMatchedPassword(password, user.getPassword());
     }
 }

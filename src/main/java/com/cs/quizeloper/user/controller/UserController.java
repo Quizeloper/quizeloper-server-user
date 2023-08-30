@@ -5,6 +5,7 @@ import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
 import com.cs.quizeloper.global.resolver.Account;
 import com.cs.quizeloper.global.resolver.UserInfo;
+import com.cs.quizeloper.user.dto.IsValidPasswordReq;
 import com.cs.quizeloper.user.dto.LoginReq;
 import com.cs.quizeloper.user.dto.SignupReq;
 import com.cs.quizeloper.user.service.UserService;
@@ -44,6 +45,13 @@ public class UserController {
     @PostMapping("/logout")
     public BaseResponse<?> logout(@Account UserInfo userInfo, HttpServletRequest request){
         userService.blackListAccessToken(userInfo.getId(), request);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    // 비멀번호 확인 (정보 수정, 회원탈퇴 등 사용자의 비밀번호가 맞는지 확인할 때 사용)
+    @PostMapping("/password")
+    public BaseResponse<?> isValidPassword(@Account UserInfo userInfo, @RequestBody IsValidPasswordReq password){
+        userService.isMatchedPassword(userInfo.getId(), password.getPassword());
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 }
