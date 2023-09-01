@@ -1,8 +1,6 @@
 package com.cs.quizeloper.inquiry.dto;
 
 import com.cs.quizeloper.inquiry.entity.Inquiry;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,24 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GetInquiryRes {
+public class GetShortInquiryRes {
     private String inquiryStatus;
     private String type;
     private String title;
-    private String content;
-    private String link;
-    private String answer;
-    private Boolean byUser;
 
-    public static GetInquiryRes toDto(Inquiry inquiry, Boolean byUser){
-        return GetInquiryRes.builder()
+    public static GetShortInquiryRes toDto(Inquiry inquiry){
+        return GetShortInquiryRes.builder()
                 .inquiryStatus(inquiry.getInquiryStatus().getValue())
                 .type(inquiry.getType().getValue())
                 .title(inquiry.getTitle())
-                .content(inquiry.getContent())
-                .link(inquiry.getReferenceLink())
-                .answer(inquiry.getAnswer())
-                .byUser(byUser)
                 .build();
     }
 }
