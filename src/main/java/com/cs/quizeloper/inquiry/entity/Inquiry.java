@@ -65,4 +65,11 @@ public class Inquiry extends BaseEntity {
                 .user(user)
                 .build();
     }
+
+    public void toPatchEntity(PostInquiryReq req){
+        this.title = req.getTitle();
+        this.content = req.getContent();
+        this.type = InquiryType.getTypeByName(req.getType());
+        this.referenceLink = req.getLink();
+    }
 }

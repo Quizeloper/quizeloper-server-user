@@ -38,4 +38,13 @@ public class InquiryController {
     public BaseResponse<Page<GetShortInquiryRes>> getInquiries(Pageable pageable){
         return new BaseResponse<>(inquiryService.getInquiries(pageable));
     }
+
+    // 문의하기 수정
+    @PatchMapping("/{inquiryId}")
+    public BaseResponse<BaseResponseStatus> patchInquiry(@Account UserInfo userInfo,
+                                                         @PathVariable(name = "inquiryId") Long inquiryId,
+                                                         @RequestBody @Valid PostInquiryReq inquiryReq){
+        inquiryService.patchInquiry(userInfo.getId(), inquiryId, inquiryReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 }

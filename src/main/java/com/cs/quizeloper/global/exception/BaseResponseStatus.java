@@ -24,6 +24,8 @@ public enum BaseResponseStatus {
 
     // inquiry
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "문의사항을 찾을 수 없습니다. "),
+    INQUIRY_USER_NOT_MATCHED(HttpStatus.BAD_REQUEST, "문의사항을 생성한 사용자가 아닙니다."),
+    INQUIRY_ALREADY_REPLIED(HttpStatus.BAD_REQUEST, "문의사항은 이미 답변 처리 되었습니다."),
 
     PAGE_COUNT_UNDER(HttpStatus.NOT_FOUND,"페이지는 0 이하로 입력할 수 없습니다."),
     PAGE_SIZE_COUNT_UNDER(HttpStatus.NOT_FOUND,"페이지에 들어가는 개수는 1 이하로 입력할 수 없습니다."),
