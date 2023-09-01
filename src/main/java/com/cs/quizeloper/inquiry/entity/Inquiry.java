@@ -55,12 +55,13 @@ public class Inquiry extends BaseEntity {
         this.user = user;
     }
 
-    public static Inquiry toDto(PostInquiryReq req, User user){
+    public static Inquiry toEntity(PostInquiryReq req, User user){
         return Inquiry.builder()
                 .title(req.getTitle())
                 .content(req.getContent())
                 .referenceLink(req.getLink())
                 .type(InquiryType.getTypeByName(req.getType()))
+                .inquiryStatus(InquiryStatus.WAITING)
                 .user(user)
                 .build();
     }
