@@ -47,4 +47,12 @@ public class InquiryController {
         inquiryService.patchInquiry(userInfo.getId(), inquiryId, inquiryReq);
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
+
+    // 문의하기 삭제
+    @DeleteMapping("/{inquiryId}")
+    public BaseResponse<BaseResponseStatus> deleteInquiry(@Account UserInfo userInfo,
+                                                         @PathVariable(name = "inquiryId") Long inquiryId){
+        inquiryService.deleteInquiry(userInfo.getId(), inquiryId);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 }

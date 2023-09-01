@@ -57,4 +57,13 @@ public class InquiryService {
         inquiry.toPatchEntity(inquiryReq);
         inquiryRepository.save(inquiry);
     }
+
+    @Transactional
+    public void deleteInquiry(Long userId, Long inquiryId) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        Inquiry inquiry = inquiryRepository.findByIdAndStatus(inquiryId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.INQUIRY_NOT_FOUND));
+        // 사용자가 생성한 문의사항이 아닌경우
+        if (!inquiry.getUser().equals(user)) throw new BaseException(INQUIRY_USER_NOT_MATCHED);
+        inquiryRepository.delete(inquiry);
+    }
 }

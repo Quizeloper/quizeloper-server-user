@@ -9,12 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @DynamicInsert
 @DynamicUpdate
 @Entity
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE inquiry SET status = 'INACTIVE', last_modified_date = current_timestamp WHERE id = ?")
 public class Inquiry extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
