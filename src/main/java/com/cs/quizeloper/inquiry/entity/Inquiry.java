@@ -9,12 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @DynamicInsert
 @DynamicUpdate
 @Entity
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE inquiry SET status = 'INACTIVE', last_modified_date = current_timestamp WHERE id = ?")
 public class Inquiry extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,5 +66,12 @@ public class Inquiry extends BaseEntity {
                 .inquiryStatus(InquiryStatus.WAITING)
                 .user(user)
                 .build();
+    }
+
+    public void toPatchEntity(PostInquiryReq req){
+        if (!req.getTitle().equals(this.title)) this.title = req.getTitle();
+        if (!req.getContent().equals(this.content)) this.content = req.getContent();
+        if (!InquiryType.getTypeByName(req.getType()).equals(this.type)) this.type = InquiryType.getTypeByName(req.getType());
+        if (!req.getLink().equals(this.referenceLink)) this.referenceLink = req.getLink();
     }
 }
