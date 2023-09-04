@@ -69,9 +69,9 @@ public class Inquiry extends BaseEntity {
     }
 
     public void toPatchEntity(PostInquiryReq req){
-        this.title = req.getTitle();
-        this.content = req.getContent();
-        this.type = InquiryType.getTypeByName(req.getType());
-        this.referenceLink = req.getLink();
+        if (!req.getTitle().equals(this.title)) this.title = req.getTitle();
+        if (!req.getContent().equals(this.content)) this.content = req.getContent();
+        if (!InquiryType.getTypeByName(req.getType()).equals(this.type)) this.type = InquiryType.getTypeByName(req.getType());
+        if (!req.getLink().equals(this.referenceLink)) this.referenceLink = req.getLink();
     }
 }
