@@ -98,5 +98,17 @@ public class UserService {
         }
         // 닉네임 수정
         if(!user.getNickname().equals(myPageReq.getNickname())) user.setNickname(myPageReq.getNickname());
+        // 수정 저장
+        userRepository.save(user);
+    }
+
+    public void patchPassword(LoginReq loginReq) {
+        // 사용자 불러오기
+        User user = userRepository.findByEmailAndStatus(loginReq.getEmail(), BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // 비밀번호 수정
+        String password = loginReq.getPassword();
+        user.setPassword(passwordEncoder.encode(password));
+        // 수정 저장
+        userRepository.save(user);
     }
 }

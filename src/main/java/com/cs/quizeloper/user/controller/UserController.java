@@ -50,6 +50,14 @@ public class UserController {
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
+    // 비밀번호 수정
+    @PatchMapping("/password")
+    public BaseResponse<BaseResponseStatus> patchPassword(@RequestBody @Valid LoginReq loginReq){
+        userService.patchPassword(loginReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+
     // 이메일 중복 확인
     @PostMapping("/email/double-check")
     public BaseResponse<BaseResponseStatus> checkDuplicatedEmail(@RequestBody @Valid CheckDuplicatedEmailReq email){
