@@ -6,10 +6,12 @@ import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.JwtService;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
+import com.cs.quizeloper.inquiry.Repository.InquiryRepository;
+import com.cs.quizeloper.inquiry.entity.InquiryStatus;
+import com.cs.quizeloper.quiz.Repository.QuizDashboardRepository;
+import com.cs.quizeloper.quiz.entity.QuizDashboard;
 import com.cs.quizeloper.user.Repository.UserRepository;
-import com.cs.quizeloper.user.dto.LoginReq;
-import com.cs.quizeloper.user.dto.PatchMyPageReq;
-import com.cs.quizeloper.user.dto.SignupReq;
+import com.cs.quizeloper.user.dto.*;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +19,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final QuizDashboardRepository quizDashboardRepository;
+    private final InquiryRepository inquiryRepository;
 
     public TokenDto signUp(SignupReq signupReq) {
         if (userRepository.existsByEmailAndStatus(signupReq.getEmail(), BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -112,5 +118,15 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
         // 수정 저장
         userRepository.save(user);
+    }
+
+    public MyPageRes getMypage(Long userId) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        List<QuizDashboard> dashboards = quizDashboardRepository.findByUserAndStatus(user, BaseStatus.ACTIVE);
+        MyPageQuestionRes myPageQuestionRes = MyPageQuestionRes.toDto(
+                inquiryRepository.countByUserAndStatus(user, BaseStatus.ACTIVE),
+                inquiryRepository.countByUserAndStatusAndInquiryStatus(user, BaseStatus.ACTIVE, InquiryStatus.REPLIED)
+        );
+        return MyPageRes.toDto(user.getEmail(), user.getNickname(), dashboards, myPageQuestionRes);
     }
 }

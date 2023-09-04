@@ -79,4 +79,10 @@ public class UserController {
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
+    // 마이페이지
+    @GetMapping("/mypage")
+    public BaseResponse<MyPageRes> getMypage(@Account UserInfo userInfo){
+        return new BaseResponse<>(userService.getMypage(userInfo.getId()));
+    }
+
 }
