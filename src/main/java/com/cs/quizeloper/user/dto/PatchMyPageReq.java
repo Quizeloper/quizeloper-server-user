@@ -19,4 +19,5 @@ public class PatchMyPageReq {
             message = "닉네임을 숫자, 문자를 사용하여 6자리 이상으로 입력해주세요 "
     )
     private String nickname;
+    private String imgKey;
 }

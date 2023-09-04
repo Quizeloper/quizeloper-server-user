@@ -98,6 +98,8 @@ public class UserService {
         }
         // 닉네임 수정
         if(!user.getNickname().equals(myPageReq.getNickname())) user.setNickname(myPageReq.getNickname());
+        // 이미지키가 다른 경우
+        if(!user.getImgKey().equals(myPageReq.getImgKey())) user.setImgKey(myPageReq.getImgKey());
         // 수정 저장
         userRepository.save(user);
     }
