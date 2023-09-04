@@ -129,4 +129,10 @@ public class UserService {
         );
         return MyPageRes.toDto(user.getEmail(), user.getNickname(), dashboards, myPageQuestionRes);
     }
+
+    public void signout(Long userId) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // todo: cascade 적용후 테스트 진행
+        userRepository.delete(user);
+    }
 }
