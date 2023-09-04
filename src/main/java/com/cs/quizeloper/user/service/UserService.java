@@ -8,6 +8,7 @@ import com.cs.quizeloper.global.jwt.JwtService;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.dto.LoginReq;
+import com.cs.quizeloper.user.dto.PatchMyPageReq;
 import com.cs.quizeloper.user.dto.SignupReq;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
@@ -84,5 +85,18 @@ public class UserService {
         if (userRepository.existsByNicknameAndStatus(nickname, BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_NICKNAME);
 
 
+    }
+
+    public void patchMypage(Long userId, PatchMyPageReq myPageReq) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // 자기 자신 이외의 닉네임을 확인하여 동일한 닉네임이 존재하는 경우
+        if(userRepository.existsByNicknameAndStatusAndIdNot(myPageReq.getNickname(), BaseStatus.ACTIVE, userId)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_NICKNAME);
+        // 비밀번호 수정
+        if(!passwordEncoder.matches(user.getPassword(), myPageReq.getPassword())) {
+            String password = myPageReq.getPassword();
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        // 닉네임 수정
+        if(!user.getNickname().equals(myPageReq.getNickname())) user.setNickname(myPageReq.getNickname());
     }
 }

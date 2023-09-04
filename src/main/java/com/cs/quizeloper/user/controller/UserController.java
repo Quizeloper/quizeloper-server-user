@@ -10,10 +10,7 @@ import com.cs.quizeloper.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -66,4 +63,12 @@ public class UserController {
         userService.checkDuplicatedNickname(nickname.getNickname());
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
+
+    // 회원정보 수정
+    @PatchMapping("/mypage")
+    public BaseResponse<BaseResponseStatus> patchMypage(@Account UserInfo userInfo, @RequestBody @Valid PatchMyPageReq myPageReq){
+        userService.patchMypage(userInfo.getId(), myPageReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
 }
