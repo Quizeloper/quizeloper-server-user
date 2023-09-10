@@ -48,7 +48,7 @@ public class QuizController {
 
     /**
      * [GET] 퀴즈 문제 유형 목록 불러오기
-     * @return BaseResponse<Page<GetQuizUnitRes>>
+     * @return BaseResponse<List<GetQuizUnitRes>>
      */
     @ResponseBody
     @GetMapping("/quizUnit")
