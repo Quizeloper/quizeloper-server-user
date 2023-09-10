@@ -2,8 +2,12 @@ package com.cs.quizeloper.quiz.service;
 
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
 import com.cs.quizeloper.quiz.Repository.QuizRepository;
+import com.cs.quizeloper.quiz.Repository.QuizSolvingRepository;
+import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
+import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
+import com.cs.quizeloper.quiz.model.GetSolvingRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,21 @@ import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
 public class QuizService {
     private final QuizRepository quizRepository;
     private final QuizLikeRepository quizLikeRepository;
+    private final QuizUnitRepository quizUnitRepository;
+    private final QuizSolvingRepository quizSolvingRepository;
+
+    // 개별 퀴즈 조회
+    public GetQuizDetailRes getQuizDetail(Long userId, long quizIdx) {
+        Quiz quiz = quizRepository.findByIdAndStatus(quizIdx, ACTIVE);
+        List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
+        List<String> quizUnits = quizUnitRepository.findAllByStackAndStatus(quiz.getStackUnit(), ACTIVE).stream()
+                .map(QuizUnit::getUnit)
+                .toList();
+        List<GetSolvingRes> solvings = quizSolvingRepository.findAllByQuizIdAndStatus(quiz.getId(), ACTIVE).stream()
+                        .map(solver -> new GetSolvingRes(solver.getNumber(), solver.getQuestion()))
+                        .toList();
+        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), quizUnits, solvings, checkUserLikesQuiz(quizLikes, quiz));
+    }
 
     // 퀴즈 전체 목록 조회
     @Transactional

@@ -3,6 +3,7 @@ package com.cs.quizeloper.quiz.controller;
 import com.cs.quizeloper.global.exception.BaseResponse;
 import com.cs.quizeloper.global.resolver.Account;
 import com.cs.quizeloper.global.resolver.UserInfo;
+import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
 import com.cs.quizeloper.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class QuizController {
     private final QuizService quizService;
+
+    /**
+     * [GET] 퀴즈 보기
+     * @return BaseResponse<GetQuizRes>
+     */
+    @ResponseBody
+    @GetMapping("/quiz/{quizIdx}")
+    public BaseResponse<GetQuizDetailRes> getQuizDetail(@Account UserInfo userInfo, @PathVariable long quizIdx) {
+        GetQuizDetailRes quizDetail = quizService.getQuizDetail(userInfo.getId(), quizIdx);
+        return new BaseResponse<>(quizDetail);
+    }
 
     /**
      * [GET] 퀴즈 목록 불러오기
