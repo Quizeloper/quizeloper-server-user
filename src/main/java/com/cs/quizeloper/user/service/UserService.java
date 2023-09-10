@@ -6,9 +6,12 @@ import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.jwt.JwtService;
 import com.cs.quizeloper.global.jwt.dto.TokenDto;
+import com.cs.quizeloper.inquiry.Repository.InquiryRepository;
+import com.cs.quizeloper.inquiry.entity.InquiryStatus;
+import com.cs.quizeloper.quiz.Repository.QuizDashboardRepository;
+import com.cs.quizeloper.quiz.entity.QuizDashboard;
 import com.cs.quizeloper.user.Repository.UserRepository;
-import com.cs.quizeloper.user.dto.LoginReq;
-import com.cs.quizeloper.user.dto.SignupReq;
+import com.cs.quizeloper.user.dto.*;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,12 +19,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final QuizDashboardRepository quizDashboardRepository;
+    private final InquiryRepository inquiryRepository;
 
     public TokenDto signUp(SignupReq signupReq) {
         if (userRepository.existsByEmailAndStatus(signupReq.getEmail(), BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -84,5 +91,42 @@ public class UserService {
         if (userRepository.existsByNicknameAndStatus(nickname, BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_NICKNAME);
 
 
+    }
+
+    public void patchMypage(Long userId, PatchMyPageReq myPageReq) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // 자기 자신 이외의 닉네임을 확인하여 동일한 닉네임이 존재하는 경우
+        if(userRepository.existsByNicknameAndStatusAndIdNot(myPageReq.getNickname(), BaseStatus.ACTIVE, userId)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_NICKNAME);
+        // 비밀번호 수정
+        if(!passwordEncoder.matches(user.getPassword(), myPageReq.getPassword())) {
+            String password = myPageReq.getPassword();
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        // 닉네임 수정
+        if(!user.getNickname().equals(myPageReq.getNickname())) user.setNickname(myPageReq.getNickname());
+        // 이미지키가 다른 경우
+        if(!user.getImgKey().equals(myPageReq.getImgKey())) user.setImgKey(myPageReq.getImgKey());
+        // 수정 저장
+        userRepository.save(user);
+    }
+
+    public void patchPassword(LoginReq loginReq) {
+        // 사용자 불러오기
+        User user = userRepository.findByEmailAndStatus(loginReq.getEmail(), BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        // 비밀번호 수정
+        String password = loginReq.getPassword();
+        user.setPassword(passwordEncoder.encode(password));
+        // 수정 저장
+        userRepository.save(user);
+    }
+
+    public MyPageRes getMypage(Long userId) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        List<QuizDashboard> dashboards = quizDashboardRepository.findByUserAndStatus(user, BaseStatus.ACTIVE);
+        MyPageQuestionRes myPageQuestionRes = MyPageQuestionRes.toDto(
+                inquiryRepository.countByUserAndStatus(user, BaseStatus.ACTIVE),
+                inquiryRepository.countByUserAndStatusAndInquiryStatus(user, BaseStatus.ACTIVE, InquiryStatus.REPLIED)
+        );
+        return MyPageRes.toDto(user.getEmail(), user.getNickname(), dashboards, myPageQuestionRes);
     }
 }

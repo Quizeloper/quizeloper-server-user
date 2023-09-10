@@ -10,10 +10,7 @@ import com.cs.quizeloper.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -53,6 +50,14 @@ public class UserController {
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
+    // 비밀번호 수정
+    @PatchMapping("/password")
+    public BaseResponse<BaseResponseStatus> patchPassword(@RequestBody @Valid LoginReq loginReq){
+        userService.patchPassword(loginReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+
     // 이메일 중복 확인
     @PostMapping("/email/double-check")
     public BaseResponse<BaseResponseStatus> checkDuplicatedEmail(@RequestBody @Valid CheckDuplicatedEmailReq email){
@@ -66,4 +71,18 @@ public class UserController {
         userService.checkDuplicatedNickname(nickname.getNickname());
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
+
+    // 회원정보 수정
+    @PatchMapping("/mypage")
+    public BaseResponse<BaseResponseStatus> patchMypage(@Account UserInfo userInfo, @RequestBody @Valid PatchMyPageReq myPageReq){
+        userService.patchMypage(userInfo.getId(), myPageReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    // 마이페이지
+    @GetMapping("/mypage")
+    public BaseResponse<MyPageRes> getMypage(@Account UserInfo userInfo){
+        return new BaseResponse<>(userService.getMypage(userInfo.getId()));
+    }
+
 }
