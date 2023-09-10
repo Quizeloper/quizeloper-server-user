@@ -43,6 +43,14 @@ public class UserController {
         return new BaseResponse<>(BaseResponseStatus.SUCCESS);
     }
 
+    // 회원탈퇴
+    @DeleteMapping("/signout")
+    public BaseResponse<BaseResponseStatus> signout(@Account UserInfo userInfo, HttpServletRequest request){
+        userService.blackListAccessToken(userInfo.getId(), request);
+        userService.signout(userInfo.getId());
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
     // 비멀번호 확인 (정보 수정, 회원탈퇴 등 사용자의 비밀번호가 맞는지 확인할 때 사용)
     @PostMapping("/password")
     public BaseResponse<BaseResponseStatus> isValidPassword(@Account UserInfo userInfo, @RequestBody @Valid IsValidPasswordReq password){
