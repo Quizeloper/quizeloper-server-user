@@ -37,4 +37,12 @@ public class QuizHistory extends BaseEntity {
         this.user = user;
         this.quiz = quiz;
     }
+
+    public static QuizHistory toEntity(QuizStatus quizStatus, Quiz quiz, User user){
+        return QuizHistory.builder()
+                .quizStatus(quizStatus)
+                .user(user)
+                .quiz(quiz)
+                .build();
+    }
 }
