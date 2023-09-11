@@ -2,8 +2,10 @@ package com.cs.quizeloper.quiz.service;
 
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
 import com.cs.quizeloper.quiz.Repository.QuizRepository;
+import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
+import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,6 +27,7 @@ import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
 public class QuizService {
     private final QuizRepository quizRepository;
     private final QuizLikeRepository quizLikeRepository;
+    private final QuizUnitRepository quizUnitRepository;
 
     // 퀴즈 전체 목록 조회
     @Transactional
@@ -56,6 +60,14 @@ public class QuizService {
                         checkUserLikesQuiz(quizLikes, quiz)))
                 .toList();
         return new PageImpl<>(quizResList, pageRequest, pagingFilteredQuiz.getTotalElements());
+    }
+
+    // 퀴즈 문제 유형 조회
+    public List<GetQuizUnitRes> getQuizUnitList() {
+        return quizUnitRepository.findAllByStatus(ACTIVE)
+                .stream()
+                .map(GetQuizUnitRes::toDto)
+                .collect(Collectors.toList());
     }
 
     // 퀴즈 좋아요 확인 여부
