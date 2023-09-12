@@ -7,11 +7,14 @@ import com.cs.quizeloper.global.resolver.UserInfo;
 import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
 import com.cs.quizeloper.quiz.model.PostQuizReq;
+import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import com.cs.quizeloper.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/quizzes")
@@ -43,7 +46,7 @@ public class QuizController {
 
     /**
      * [GET] 퀴즈 목록 불러오기
-     * @return BaseResponse<GetPagedQuizRes>
+     * @return BaseResponse<Page<GetQuizRes>
      */
     @ResponseBody
     @GetMapping("")
@@ -56,7 +59,7 @@ public class QuizController {
 
     /**
      * [GET] 조건별로 필터링한 퀴즈 목록 불러오기
-     * @return BaseResponse<GetQuizRes>
+     * @return BaseResponse<Page<GetQuizRes>>
      */
     @ResponseBody
     @GetMapping("/{stack}")
@@ -66,5 +69,15 @@ public class QuizController {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<GetQuizRes> quizPage = quizService.getFilteredQuizList(userInfo.getId(), stack, quizType, pageRequest, range);
         return new BaseResponse<>(quizPage);
+    }
+
+    /**
+     * [GET] 퀴즈 문제 유형 목록 불러오기
+     * @return BaseResponse<List<GetQuizUnitRes>>
+     */
+    @ResponseBody
+    @GetMapping("/quizUnit")
+    public BaseResponse<List<GetQuizUnitRes>> getQuizUnitList(@Account UserInfo userInfo) {
+        return new BaseResponse<>(quizService.getQuizUnitList());
     }
 }

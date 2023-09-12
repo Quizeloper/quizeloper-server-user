@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface QuizUnitRepository extends JpaRepository<QuizUnit, Long> {
     List<QuizUnit> findAllByStackAndStatus(Stack stack, BaseStatus status);
+    List<QuizUnit> findAllByStatus(BaseStatus status);
 }

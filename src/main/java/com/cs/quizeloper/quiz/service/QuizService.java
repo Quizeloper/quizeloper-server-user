@@ -4,6 +4,9 @@ import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.global.exception.BaseException;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.quiz.Repository.*;
+import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
+import com.cs.quizeloper.quiz.Repository.QuizRepository;
+import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
@@ -11,6 +14,7 @@ import com.cs.quizeloper.quiz.model.GetSolvingRes;
 import com.cs.quizeloper.quiz.model.PostQuizReq;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.entity.User;
+import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,6 +93,14 @@ public class QuizService {
                         checkUserLikesQuiz(quizLikes, quiz)))
                 .toList();
         return new PageImpl<>(quizResList, pageRequest, pagingFilteredQuiz.getTotalElements());
+    }
+
+    // 퀴즈 문제 유형 조회
+    public List<GetQuizUnitRes> getQuizUnitList() {
+        return quizUnitRepository.findAllByStatus(ACTIVE)
+                .stream()
+                .map(GetQuizUnitRes::toDto)
+                .collect(Collectors.toList());
     }
 
     // 퀴즈 좋아요 확인 여부
