@@ -1,10 +1,19 @@
 package com.cs.quizeloper.quiz.service;
 
+import com.cs.quizeloper.global.entity.BaseStatus;
+import com.cs.quizeloper.global.exception.BaseException;
+import com.cs.quizeloper.global.exception.BaseResponseStatus;
+import com.cs.quizeloper.quiz.Repository.*;
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
 import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
+import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
+import com.cs.quizeloper.quiz.model.GetSolvingRes;
+import com.cs.quizeloper.quiz.model.PostQuizReq;
+import com.cs.quizeloper.user.Repository.UserRepository;
+import com.cs.quizeloper.user.entity.User;
 import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +34,33 @@ import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
 @Service
 @RequiredArgsConstructor
 public class QuizService {
+    private final UserRepository userRepository;
     private final QuizRepository quizRepository;
     private final QuizLikeRepository quizLikeRepository;
     private final QuizUnitRepository quizUnitRepository;
+    private final QuizSolvingRepository quizSolvingRepository;
+    private final QuizHistoryRepository quizHistoryRepository;
+
+    // 개별 퀴즈 조회
+    public GetQuizDetailRes getQuizDetail(Long userId, long quizIdx) {
+        Quiz quiz = quizRepository.findByIdAndStatus(quizIdx, ACTIVE);
+        List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
+        List<String> quizUnits = quizUnitRepository.findAllByStackAndStatus(quiz.getStackUnit(), ACTIVE).stream()
+                .map(QuizUnit::getUnit)
+                .toList();
+        List<GetSolvingRes> solvings = quizSolvingRepository.findAllByQuizIdAndStatus(quiz.getId(), ACTIVE).stream()
+                        .map(solver -> new GetSolvingRes(solver.getNumber(), solver.getQuestion()))
+                        .toList();
+        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), quizUnits, solvings, checkUserLikesQuiz(quizLikes, quiz));
+    }
+
+    // 퀴즈 풀기
+    public void postQuizDetail(Long userId, long quizIdx, PostQuizReq postQuizReq) {
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        Quiz quiz = quizRepository.findByIdAndStatus(quizIdx, ACTIVE);
+        if (quiz.getAnswer().equals(postQuizReq.getAnswer())) { quizHistoryRepository.save(QuizHistory.toEntity(QuizStatus.SUCCESS, quiz, user));}
+        else { quizHistoryRepository.save(QuizHistory.toEntity(QuizStatus.FAILURE, quiz, user)); }
+    }
 
     // 퀴즈 전체 목록 조회
     @Transactional

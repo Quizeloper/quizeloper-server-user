@@ -1,9 +1,12 @@
 package com.cs.quizeloper.quiz.controller;
 
 import com.cs.quizeloper.global.exception.BaseResponse;
+import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.resolver.Account;
 import com.cs.quizeloper.global.resolver.UserInfo;
+import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
 import com.cs.quizeloper.quiz.model.GetQuizRes;
+import com.cs.quizeloper.quiz.model.PostQuizReq;
 import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import com.cs.quizeloper.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class QuizController {
     private final QuizService quizService;
+
+    /**
+     * [GET] 퀴즈 보기
+     * @return BaseResponse<GetQuizRes>
+     */
+    @ResponseBody
+    @GetMapping("/quiz/{quizIdx}")
+    public BaseResponse<GetQuizDetailRes> getQuizDetail(@Account UserInfo userInfo, @PathVariable long quizIdx) {
+        GetQuizDetailRes quizDetail = quizService.getQuizDetail(userInfo.getId(), quizIdx);
+        return new BaseResponse<>(quizDetail);
+    }
+
+    /**
+     * [POST] 퀴즈 풀기
+     * @return BaseResponse<BaseResponseStatus>
+     */
+    @ResponseBody
+    @PostMapping("/quiz/{quizIdx}")
+    public BaseResponse<BaseResponseStatus> postQuizDetail(@Account UserInfo userInfo, @PathVariable long quizIdx, @RequestBody PostQuizReq postQuizReq) {
+        quizService.postQuizDetail(userInfo.getId(), quizIdx, postQuizReq);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
 
     /**
      * [GET] 퀴즈 목록 불러오기

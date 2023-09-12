@@ -14,8 +14,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
+
+    Quiz findByIdAndStatus(long quizIdx, BaseStatus status);
     Page<Quiz> findAllByStatus(BaseStatus status, Pageable pageable);
-    Page<Quiz> findAllByStatusAndStackUnit(BaseStatus status, Stack stack, Pageable pageable);
     @Query("SELECT q.quiz FROM QuizUnitList q WHERE q.quiz.stackUnit = :stack and q.quizUnit.id in :unitRange and (q.quiz.type = :quizType or :quizType is null)")
     Page<Quiz> findAllByStackAndQuizUnitIsNullAndQuizTypeIsNull(Pageable pageable, Stack stack, QuizType quizType, @Param("unitRange") Long ... unitRange);
     @Query("SELECT q.quiz FROM QuizUnitList q WHERE (q.quiz.stackUnit = :stack or :stack is null) and (q.quiz.type = :quizType or :quizType is null)")
