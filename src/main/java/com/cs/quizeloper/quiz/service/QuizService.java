@@ -8,13 +8,9 @@ import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
 import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
-import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
-import com.cs.quizeloper.quiz.model.GetQuizRes;
-import com.cs.quizeloper.quiz.model.GetSolvingRes;
-import com.cs.quizeloper.quiz.model.PostQuizReq;
+import com.cs.quizeloper.quiz.model.*;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.entity.User;
-import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,6 +97,13 @@ public class QuizService {
                 .stream()
                 .map(GetQuizUnitRes::toDto)
                 .collect(Collectors.toList());
+    }
+
+    // 퀴즈 답안 & 해설 조회
+    public GetQuizAnsRes getQuizAnswer(long userId, long quizId) {
+        QuizHistory quizHistory= quizHistoryRepository.findFirstByQuizIdAndUserIdAndStatusOrderByCreatedDateDesc(quizId, userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_HISTORY_NOT_FOUND));
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE);
+        return GetQuizAnsRes.toDto(quiz, quizHistory);
     }
 
     // 퀴즈 좋아요 확인 여부
