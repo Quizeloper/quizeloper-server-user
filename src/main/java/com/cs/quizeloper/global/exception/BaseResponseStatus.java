@@ -22,6 +22,9 @@ public enum BaseResponseStatus {
     DUPLICATE_USER_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다. "),
     DUPLICATE_USER_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다. "),
 
+    // quiz
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "퀴즈를 찾을 수 없습니다."),
+
     // inquiry
     INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "문의사항을 찾을 수 없습니다. "),
     INQUIRY_USER_NOT_MATCHED(HttpStatus.BAD_REQUEST, "문의사항을 생성한 사용자가 아닙니다."),

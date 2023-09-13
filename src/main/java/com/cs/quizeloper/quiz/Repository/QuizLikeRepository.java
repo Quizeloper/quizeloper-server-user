@@ -13,4 +13,6 @@ import java.util.List;
 public interface QuizLikeRepository extends JpaRepository<QuizLike, Long> {
     @Query("SELECT e.id FROM QuizLike e")
     List<Long> findAllByUserIdAndStatus(Long userId, BaseStatus status);
+    Boolean existsIdByUserIdAndQuizId(Long userId, Long quizId);
+    void deleteByUserIdAndQuizId(Long userId, Long quizId);
 }
