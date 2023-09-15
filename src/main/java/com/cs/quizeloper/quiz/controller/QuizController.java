@@ -4,10 +4,7 @@ import com.cs.quizeloper.global.exception.BaseResponse;
 import com.cs.quizeloper.global.exception.BaseResponseStatus;
 import com.cs.quizeloper.global.resolver.Account;
 import com.cs.quizeloper.global.resolver.UserInfo;
-import com.cs.quizeloper.quiz.model.GetQuizDetailRes;
-import com.cs.quizeloper.quiz.model.GetQuizRes;
-import com.cs.quizeloper.quiz.model.PostQuizReq;
-import com.cs.quizeloper.quiz.model.GetQuizUnitRes;
+import com.cs.quizeloper.quiz.model.*;
 import com.cs.quizeloper.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -79,5 +76,15 @@ public class QuizController {
     @GetMapping("/quizUnit")
     public BaseResponse<List<GetQuizUnitRes>> getQuizUnitList(@Account UserInfo userInfo) {
         return new BaseResponse<>(quizService.getQuizUnitList());
+    }
+
+    /**
+     * [GET] 퀴즈 답 & 해설 조회
+     * @return BaseResponse<GetQuizAnsRes>
+     */
+    @ResponseBody
+    @GetMapping("/{quizIdx}/answer")
+    public BaseResponse<GetQuizAnsRes> getQuizAnswer(@Account UserInfo userInfo, @PathVariable long quizIdx) {
+        return new BaseResponse<>(quizService.getQuizAnswer(userInfo.getId(), quizIdx));
     }
 }
