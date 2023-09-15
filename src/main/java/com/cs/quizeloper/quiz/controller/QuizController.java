@@ -42,6 +42,17 @@ public class QuizController {
     }
 
     /**
+     * [POST] 퀴즈 좋아요
+     * @return BaseResponse<BaseResponseStatus>
+     */
+    @ResponseBody
+    @PostMapping("/{quizIdx}/likes")
+    public BaseResponse<BaseResponseStatus> postQuizDetail(@Account UserInfo userInfo, @PathVariable long quizIdx) {
+        quizService.postQuizLikes(userInfo.getId(), quizIdx);
+        return new BaseResponse<>(BaseResponseStatus.SUCCESS);
+    }
+
+    /**
      * [GET] 퀴즈 목록 불러오기
      * @return BaseResponse<Page<GetQuizRes>
      */

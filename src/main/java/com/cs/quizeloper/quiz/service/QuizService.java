@@ -38,8 +38,8 @@ public class QuizService {
     private final QuizHistoryRepository quizHistoryRepository;
 
     // 개별 퀴즈 조회
-    public GetQuizDetailRes getQuizDetail(Long userId, long quizIdx) {
-        Quiz quiz = quizRepository.findByIdAndStatus(quizIdx, ACTIVE);
+    public GetQuizDetailRes getQuizDetail(Long userId, Long quizId) {
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
         List<String> quizUnits = quizUnitRepository.findAllByStackAndStatus(quiz.getStackUnit(), ACTIVE).stream()
                 .map(QuizUnit::getUnit)
@@ -51,11 +51,26 @@ public class QuizService {
     }
 
     // 퀴즈 풀기
-    public void postQuizDetail(Long userId, long quizIdx, PostQuizReq postQuizReq) {
+    public void postQuizDetail(Long userId, Long quizId, PostQuizReq postQuizReq) {
         User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
-        Quiz quiz = quizRepository.findByIdAndStatus(quizIdx, ACTIVE);
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         if (quiz.getAnswer().equals(postQuizReq.getAnswer())) { quizHistoryRepository.save(QuizHistory.toEntity(QuizStatus.SUCCESS, quiz, user));}
         else { quizHistoryRepository.save(QuizHistory.toEntity(QuizStatus.FAILURE, quiz, user)); }
+    }
+
+    // 퀴즈 좋아요
+    @Transactional
+    public void postQuizLikes(Long userId, Long quizId){
+        User user = userRepository.findByIdAndStatus(userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
+        if (quizLikeRepository.existsIdByUserIdAndQuizId(user.getId(), quizId)) {
+            quizLikeRepository.deleteByUserIdAndQuizId(userId, quizId);
+        }
+        else {
+            QuizLike quizLike = QuizLike.builder().user(user).quiz(quiz).build();
+            quizLikeRepository.save(quizLike);
+        }
+
     }
 
     // 퀴즈 전체 목록 조회

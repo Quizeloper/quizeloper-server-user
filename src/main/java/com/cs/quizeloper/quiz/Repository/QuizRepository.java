@@ -11,11 +11,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
-    Quiz findByIdAndStatus(long quizIdx, BaseStatus status);
+    Optional<Quiz> findByIdAndStatus(Long quizIdx, BaseStatus status);
     Page<Quiz> findAllByStatus(BaseStatus status, Pageable pageable);
     @Query("SELECT q.quiz FROM QuizUnitList q WHERE q.quiz.stackUnit = :stack and q.quizUnit.id in :unitRange and (q.quiz.type = :quizType or :quizType is null)")
     Page<Quiz> findAllByStackAndQuizUnitIsNullAndQuizTypeIsNull(Pageable pageable, Stack stack, QuizType quizType, @Param("unitRange") Long ... unitRange);
