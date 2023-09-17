@@ -144,9 +144,15 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public Page<GetUserQuizRes> getMyQuizList(Long userId, String stack, Pageable pageable){
+    public Page<GetUserQuizRes> getQuizListByStack(Long userId, String stack, Pageable pageable){
         User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
         return quizLikeRepository.findAllByOrderByCreatedDateDesc(user, Stack.valueOf(stack.toUpperCase()), ACTIVE, pageable)
+                .map(quiz -> GetUserQuizRes.toDto(quiz, getQuizUnitList(quiz)));
+    }
+
+    public Page<GetUserQuizRes> getQuizList(Long userId, Pageable pageable){
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        return quizLikeRepository.findAll(user, ACTIVE, pageable)
                 .map(quiz -> GetUserQuizRes.toDto(quiz, getQuizUnitList(quiz)));
     }
 

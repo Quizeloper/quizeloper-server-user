@@ -22,4 +22,7 @@ public interface QuizLikeRepository extends JpaRepository<QuizLike, Long> {
     void deleteByUserIdAndQuizId(Long userId, Long quizId);
     @Query("SELECT q.quiz FROM QuizLike q WHERE q.status = :status and q.quiz.stackUnit = :stack and q.user = :user")
     Page<Quiz> findAllByOrderByCreatedDateDesc(User user, Stack stack, BaseStatus status, Pageable pageable);
+
+    @Query("SELECT q.quiz FROM QuizLike q WHERE q.status = :status and q.user = :user")
+    Page<Quiz> findAll(User user, BaseStatus status, Pageable pageable);
 }

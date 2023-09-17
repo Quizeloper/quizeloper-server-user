@@ -97,8 +97,15 @@ public class UserController {
 
     // 스택별 좋아요 문제 불러오기
     @GetMapping("/myQuizzes/{stack}/likes")
-    public BaseResponse<Page<GetUserQuizRes>> getMyQuizList(@Account UserInfo userInfo, @PathVariable String stack, Pageable pageable) {
-        Page<GetUserQuizRes> myQuizzes = userService.getMyQuizList(userInfo.getId(), stack, pageable);
+    public BaseResponse<Page<GetUserQuizRes>> getMyQuizListByStack(@Account UserInfo userInfo, @PathVariable String stack, Pageable pageable) {
+        Page<GetUserQuizRes> myQuizzes = userService.getQuizListByStack(userInfo.getId(), stack, pageable);
+        return new BaseResponse<>(myQuizzes);
+    }
+
+    // 좋아요 문제 불러오기
+    @GetMapping("/myQuizzes/likes")
+    public BaseResponse<Page<GetUserQuizRes>> getMyQuizList(@Account UserInfo userInfo, Pageable pageable) {
+        Page<GetUserQuizRes> myQuizzes = userService.getQuizList(userInfo.getId(), pageable);
         return new BaseResponse<>(myQuizzes);
     }
 }
