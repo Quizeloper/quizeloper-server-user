@@ -9,10 +9,9 @@ import com.cs.quizeloper.global.jwt.dto.TokenDto;
 import com.cs.quizeloper.inquiry.Repository.InquiryRepository;
 import com.cs.quizeloper.inquiry.entity.InquiryStatus;
 import com.cs.quizeloper.quiz.Repository.QuizDashboardRepository;
+import com.cs.quizeloper.quiz.Repository.QuizHistoryRepository;
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
-import com.cs.quizeloper.quiz.entity.Quiz;
-import com.cs.quizeloper.quiz.entity.QuizDashboard;
-import com.cs.quizeloper.quiz.entity.Stack;
+import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.dto.*;
 import com.cs.quizeloper.user.entity.Role;
@@ -37,6 +36,7 @@ public class UserService {
     private final QuizDashboardRepository quizDashboardRepository;
     private final InquiryRepository inquiryRepository;
     private final QuizLikeRepository quizLikeRepository;
+    private final QuizHistoryRepository quizHistoryRepository;
 
     public TokenDto signUp(SignupReq signupReq) {
         if (userRepository.existsByEmailAndStatus(signupReq.getEmail(), BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -156,9 +156,25 @@ public class UserService {
                 .map(quiz -> GetUserQuizRes.toDto(quiz, getQuizUnitList(quiz)));
     }
 
+    public Page<GetUserQuizHistoryRes> getQuizHistoryList(Long userId, String stack, String sorting, String solStatus, Pageable pageable){
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
+        Page<Quiz> quizzes = null;
+        if (sorting == null) { quizzes = quizHistoryRepository.findAll(user, Stack.valueOf(stack.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("latest")){ quizzes = quizHistoryRepository.findAllByOrderByCreatedDateDesc(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("past")) { quizzes = quizHistoryRepository.findAllByOrderByCreatedDateAsc(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("large")) { quizzes = quizHistoryRepository.findAllByLarge(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("small")) { quizzes = quizHistoryRepository.findAllBySmall(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        return quizzes.map(quiz -> GetUserQuizHistoryRes.toDto(quiz, getQuizUnitList(quiz), checkUserLikesQuiz(quizLikes, quiz)));
+    }
+
     private List<String> getQuizUnitList(Quiz quiz){
         return quiz.getQuizUnitList().stream()
                 .map(quizUnitList -> quizUnitList.getQuizUnit().getUnit())
                 .toList();
+    }
+
+    private boolean checkUserLikesQuiz(List<Long> quizLike, Quiz quiz) {
+        return quizLike.contains(quiz.getId());
     }
 }

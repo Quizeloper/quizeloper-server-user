@@ -108,4 +108,12 @@ public class UserController {
         Page<GetUserQuizRes> myQuizzes = userService.getQuizList(userInfo.getId(), pageable);
         return new BaseResponse<>(myQuizzes);
     }
+
+    @GetMapping("/myQuizzes/{stack}/solving/{solStatus}")
+    public BaseResponse<Page<GetUserQuizHistoryRes>> getMyQuizListByStack(@Account UserInfo userInfo, @PathVariable(required = false) String stack,
+                                                                          @RequestParam(required = false) String sorting,
+                                                                          @PathVariable String solStatus, Pageable pageable) {
+        Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryList(userInfo.getId(), stack, sorting, solStatus, pageable);
+        return new BaseResponse<>(quizHistory);
+    }
 }
