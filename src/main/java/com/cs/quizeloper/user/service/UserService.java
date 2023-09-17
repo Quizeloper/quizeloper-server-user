@@ -156,7 +156,7 @@ public class UserService {
                 .map(quiz -> GetUserQuizRes.toDto(quiz, getQuizUnitList(quiz)));
     }
 
-    public Page<GetUserQuizHistoryRes> getQuizHistoryList(Long userId, String stack, String sorting, String solStatus, Pageable pageable){
+    public Page<GetUserQuizHistoryRes> getQuizHistoryListByStack(Long userId, String stack, String sorting, String solStatus, Pageable pageable){
         User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
         List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
         Page<Quiz> quizzes = null;
@@ -165,6 +165,18 @@ public class UserService {
         else if (sorting.equals("past")) { quizzes = quizHistoryRepository.findAllByOrderByCreatedDateAsc(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
         else if (sorting.equals("large")) { quizzes = quizHistoryRepository.findAllByLarge(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
         else if (sorting.equals("small")) { quizzes = quizHistoryRepository.findAllBySmall(user, Stack.valueOf(stack.toUpperCase()), QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        return quizzes.map(quiz -> GetUserQuizHistoryRes.toDto(quiz, getQuizUnitList(quiz), checkUserLikesQuiz(quizLikes, quiz)));
+    }
+
+    public Page<GetUserQuizHistoryRes> getQuizHistoryList(Long userId, String sorting, String solStatus, Pageable pageable){
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
+        Page<Quiz> quizzes = null;
+        if (sorting == null) { quizzes = quizHistoryRepository.findAll(user, null, ACTIVE, pageable); }
+        else if (sorting.equals("latest")){ quizzes = quizHistoryRepository.findAllByOrderByCreatedDateDesc(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("past")) { quizzes = quizHistoryRepository.findAllByOrderByCreatedDateAsc(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("large")) { quizzes = quizHistoryRepository.findAllByLarge(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
+        else if (sorting.equals("small")) { quizzes = quizHistoryRepository.findAllBySmall(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
         return quizzes.map(quiz -> GetUserQuizHistoryRes.toDto(quiz, getQuizUnitList(quiz), checkUserLikesQuiz(quizLikes, quiz)));
     }
 
