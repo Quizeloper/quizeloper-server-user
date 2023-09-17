@@ -9,17 +9,24 @@ import com.cs.quizeloper.global.jwt.dto.TokenDto;
 import com.cs.quizeloper.inquiry.Repository.InquiryRepository;
 import com.cs.quizeloper.inquiry.entity.InquiryStatus;
 import com.cs.quizeloper.quiz.Repository.QuizDashboardRepository;
+import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
+import com.cs.quizeloper.quiz.entity.Quiz;
 import com.cs.quizeloper.quiz.entity.QuizDashboard;
+import com.cs.quizeloper.quiz.entity.Stack;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.dto.*;
 import com.cs.quizeloper.user.entity.Role;
 import com.cs.quizeloper.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final QuizDashboardRepository quizDashboardRepository;
     private final InquiryRepository inquiryRepository;
+    private final QuizLikeRepository quizLikeRepository;
 
     public TokenDto signUp(SignupReq signupReq) {
         if (userRepository.existsByEmailAndStatus(signupReq.getEmail(), BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -134,5 +142,17 @@ public class UserService {
         User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
         // todo: cascade 적용후 테스트 진행
         userRepository.delete(user);
+    }
+
+    public Page<GetUserQuizRes> getMyQuizList(Long userId, String stack, Pageable pageable){
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        return quizLikeRepository.findAllByOrderByCreatedDateDesc(user, Stack.valueOf(stack.toUpperCase()), ACTIVE, pageable)
+                .map(quiz -> GetUserQuizRes.toDto(quiz, getQuizUnitList(quiz)));
+    }
+
+    private List<String> getQuizUnitList(Quiz quiz){
+        return quiz.getQuizUnitList().stream()
+                .map(quizUnitList -> quizUnitList.getQuizUnit().getUnit())
+                .toList();
     }
 }

@@ -10,6 +10,8 @@ import com.cs.quizeloper.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -93,4 +95,10 @@ public class UserController {
         return new BaseResponse<>(userService.getMypage(userInfo.getId()));
     }
 
+    // 스택별 좋아요 문제 불러오기
+    @GetMapping("/myQuizzes/{stack}/likes")
+    public BaseResponse<Page<GetUserQuizRes>> getMyQuizList(@Account UserInfo userInfo, @PathVariable String stack, Pageable pageable) {
+        Page<GetUserQuizRes> myQuizzes = userService.getMyQuizList(userInfo.getId(), stack, pageable);
+        return new BaseResponse<>(myQuizzes);
+    }
 }
