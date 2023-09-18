@@ -125,4 +125,10 @@ public class UserController {
         Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryList(userInfo.getId(), sorting, solStatus, pageable);
         return new BaseResponse<>(quizHistory);
     }
+
+    // 내 퀴즈 요약
+    @GetMapping("/myQuizzes/{stack}")
+    public BaseResponse<GetMyQuizSummary> getMyQuizzesSummary(@Account UserInfo userInfo, @PathVariable String stack, @RequestParam String date) {
+        return new BaseResponse<>(userService.getQuizSummary(userInfo.getId(), stack, date));
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -23,4 +24,6 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     Page<Quiz> findAllByStackAndQuizUnitIsNullAndQuizTypeIsNull(Pageable pageable, Stack stack, QuizType quizType, @Param("unitRange") Long ... unitRange);
     @Query("SELECT q.quiz FROM QuizUnitList q WHERE (q.quiz.stackUnit = :stack or :stack is null) and (q.quiz.type = :quizType or :quizType is null)")
     Page<Quiz> findAllByStackAndQuizTypeIsNull(Pageable pageable, Stack stack, QuizType quizType);
+    @Query("SELECT COUNT(DISTINCT (CASE WHEN q.stackUnit= :stack THEN q.id END)) FROM Quiz q WHERE q.status = :status")
+    Double findAllStacks(Stack stack, BaseStatus status);
 }
