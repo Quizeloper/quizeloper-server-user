@@ -41,13 +41,10 @@ public class QuizService {
     public GetQuizDetailRes getQuizDetail(Long userId, Long quizId) {
         Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
-        List<String> quizUnits = quizUnitRepository.findAllByStackAndStatus(quiz.getStackUnit(), ACTIVE).stream()
-                .map(QuizUnit::getUnit)
-                .toList();
         List<GetSolvingRes> solvings = quizSolvingRepository.findAllByQuizIdAndStatus(quiz.getId(), ACTIVE).stream()
                         .map(solver -> new GetSolvingRes(solver.getNumber(), solver.getQuestion()))
                         .toList();
-        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), quizUnits, solvings, checkUserLikesQuiz(quizLikes, quiz));
+        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), solvings, checkUserLikesQuiz(quizLikes, quiz));
     }
 
     // 퀴즈 풀기
@@ -117,7 +114,7 @@ public class QuizService {
     // 퀴즈 답안 & 해설 조회
     public GetQuizAnsRes getQuizAnswer(long userId, long quizId) {
         QuizHistory quizHistory= quizHistoryRepository.findFirstByQuizIdAndUserIdAndStatusOrderByCreatedDateDesc(quizId, userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_HISTORY_NOT_FOUND));
-        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE);
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         return GetQuizAnsRes.toDto(quiz, quizHistory);
     }
 
