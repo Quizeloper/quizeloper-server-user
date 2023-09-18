@@ -104,8 +104,9 @@ public class QuizService {
     }
 
     // 퀴즈 문제 유형 조회
-    public List<GetQuizUnitRes> getQuizUnitList() {
-        return quizUnitRepository.findAllByStatus(ACTIVE)
+    public List<GetQuizUnitRes> getQuizUnitList(Long userId, String stack) {
+        userRepository.findByIdAndStatus(userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        return quizUnitRepository.findAllByStackAndStatus(Stack.valueOf(stack.toUpperCase()), ACTIVE)
                 .stream()
                 .map(GetQuizUnitRes::toDto)
                 .collect(Collectors.toList());

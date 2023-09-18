@@ -84,9 +84,9 @@ public class QuizController {
      * @return BaseResponse<List<GetQuizUnitRes>>
      */
     @ResponseBody
-    @GetMapping("/quizUnit")
-    public BaseResponse<List<GetQuizUnitRes>> getQuizUnitList(@Account UserInfo userInfo) {
-        return new BaseResponse<>(quizService.getQuizUnitList());
+    @GetMapping("/rangeList/{stack}")
+    public BaseResponse<List<GetQuizUnitRes>> getQuizUnitList(@Account UserInfo userInfo, @PathVariable String stack) {
+        return new BaseResponse<>(quizService.getQuizUnitList(userInfo.getId(), stack));
     }
 
     /**

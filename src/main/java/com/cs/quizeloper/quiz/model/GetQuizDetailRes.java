@@ -20,7 +20,6 @@ public class GetQuizDetailRes {
     private QuizType type;
     private Stack stackUnit;
     private List<String> unitLists;
-    private List<String> quizUnitLists;
     private List<GetSolvingRes> quizSolving;
     private boolean likeYN;
 
