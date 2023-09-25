@@ -11,6 +11,7 @@ import com.cs.quizeloper.inquiry.entity.InquiryStatus;
 import com.cs.quizeloper.quiz.Repository.QuizDashboardRepository;
 import com.cs.quizeloper.quiz.Repository.QuizHistoryRepository;
 import com.cs.quizeloper.quiz.Repository.QuizLikeRepository;
+import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.user.Repository.UserRepository;
 import com.cs.quizeloper.user.dto.*;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.cs.quizeloper.global.entity.BaseStatus.ACTIVE;
@@ -37,6 +39,7 @@ public class UserService {
     private final InquiryRepository inquiryRepository;
     private final QuizLikeRepository quizLikeRepository;
     private final QuizHistoryRepository quizHistoryRepository;
+    private final QuizRepository quizRepository;
 
     public TokenDto signUp(SignupReq signupReq) {
         if (userRepository.existsByEmailAndStatus(signupReq.getEmail(), BaseStatus.ACTIVE)) throw new BaseException(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -178,6 +181,21 @@ public class UserService {
         else if (sorting.equals("large")) { quizzes = quizHistoryRepository.findAllByLarge(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
         else if (sorting.equals("small")) { quizzes = quizHistoryRepository.findAllBySmall(user, null, QuizStatus.valueOf(solStatus.toUpperCase()), ACTIVE, pageable); }
         return quizzes.map(quiz -> GetUserQuizHistoryRes.toDto(quiz, getQuizUnitList(quiz), checkUserLikesQuiz(quizLikes, quiz)));
+    }
+
+    public GetMyQuizSummary getQuizSummary (Long userId, String stack, String date){
+        User user = userRepository.findByIdAndStatus(userId, BaseStatus.ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        Double quizTotalNum = quizRepository.findAllStacks(Stack.valueOf(stack.toUpperCase()), ACTIVE); // 스택별 전체 문제 수
+        Double solveNumByStack = quizHistoryRepository.findSolveHistoryByStacks(user, Stack.valueOf(stack.toUpperCase()), ACTIVE); // 스택별 푼 문제 수
+        Double successNumByStack = quizHistoryRepository.findSuccessHistoryByStacks(user, Stack.valueOf(stack.toUpperCase()), ACTIVE);// 맞춘 문제 수
+        Integer totalNum = quizHistoryRepository.findAllHistoryNum(user, date, ACTIVE); // 시도 문제
+        Integer solvedNum = quizHistoryRepository.findSolvedHistoryNum(user, date, ACTIVE);// 푼 문제
+        Integer successNum = quizHistoryRepository.findSuccessHistory(user, date, ACTIVE);// 맞은 문제
+        Integer failureNum = quizHistoryRepository.findFailureHistory(user, date, ACTIVE);// 틀린 문제
+        List<Double> result = new ArrayList<>();
+        result.add((successNumByStack / quizTotalNum) * 100); // 스택별 진척도 : 맞춘 문제 수 / 전체 문제 수 (중복 제거)
+        result.add((successNumByStack / solveNumByStack) * 100); // 스택별 정답률 : 맞춘 문제 수 / 푼 문제 수 (중복 제거)
+        return GetMyQuizSummary.toDto(result, totalNum, solvedNum, successNum, failureNum);
     }
 
     private List<String> getQuizUnitList(Quiz quiz){
