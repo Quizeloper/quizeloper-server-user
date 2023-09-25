@@ -108,4 +108,21 @@ public class UserController {
         Page<GetUserQuizRes> myQuizzes = userService.getQuizList(userInfo.getId(), pageable);
         return new BaseResponse<>(myQuizzes);
     }
+
+    // 스택별 맞춘/틀린 문제 조회
+    @GetMapping("/myQuizzes/{stack}/solving/{solStatus}")
+    public BaseResponse<Page<GetUserQuizHistoryRes>> getQuizHistoryByStack(@Account UserInfo userInfo, @PathVariable String stack,
+                                                                          @RequestParam(required = false) String sorting,
+                                                                          @PathVariable String solStatus, Pageable pageable) {
+        Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryListByStack(userInfo.getId(), stack, sorting, solStatus, pageable);
+        return new BaseResponse<>(quizHistory);
+    }
+
+    // 전체 맞춘/틀린 문제 조회
+    @GetMapping("/myQuizzes/solving/{solStatus}")
+    public BaseResponse<Page<GetUserQuizHistoryRes>> getQuizHistory(@Account UserInfo userInfo, @RequestParam(required = false) String sorting,
+                                                                          @PathVariable String solStatus, Pageable pageable) {
+        Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryList(userInfo.getId(), sorting, solStatus, pageable);
+        return new BaseResponse<>(quizHistory);
+    }
 }
