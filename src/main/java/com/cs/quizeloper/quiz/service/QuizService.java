@@ -41,13 +41,10 @@ public class QuizService {
     public GetQuizDetailRes getQuizDetail(Long userId, Long quizId) {
         Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         List<Long> quizLikes = quizLikeRepository.findAllByUserIdAndStatus(userId, ACTIVE);
-        List<String> quizUnits = quizUnitRepository.findAllByStackAndStatus(quiz.getStackUnit(), ACTIVE).stream()
-                .map(QuizUnit::getUnit)
-                .toList();
         List<GetSolvingRes> solvings = quizSolvingRepository.findAllByQuizIdAndStatus(quiz.getId(), ACTIVE).stream()
                         .map(solver -> new GetSolvingRes(solver.getNumber(), solver.getQuestion()))
                         .toList();
-        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), quizUnits, solvings, checkUserLikesQuiz(quizLikes, quiz));
+        return GetQuizDetailRes.toDto(quiz, getQuizUnitList(quiz), solvings, checkUserLikesQuiz(quizLikes, quiz));
     }
 
     // 퀴즈 풀기
@@ -107,8 +104,9 @@ public class QuizService {
     }
 
     // 퀴즈 문제 유형 조회
-    public List<GetQuizUnitRes> getQuizUnitList() {
-        return quizUnitRepository.findAllByStatus(ACTIVE)
+    public List<GetQuizUnitRes> getQuizUnitList(Long userId, String stack) {
+        userRepository.findByIdAndStatus(userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.USER_NOT_FOUND));
+        return quizUnitRepository.findAllByStackAndStatus(Stack.valueOf(stack.toUpperCase()), ACTIVE)
                 .stream()
                 .map(GetQuizUnitRes::toDto)
                 .collect(Collectors.toList());

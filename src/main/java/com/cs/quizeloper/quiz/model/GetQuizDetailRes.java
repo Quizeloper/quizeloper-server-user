@@ -20,18 +20,16 @@ public class GetQuizDetailRes {
     private QuizType type;
     private Stack stackUnit;
     private List<String> unitLists;
-    private List<String> quizUnitLists;
     private List<GetSolvingRes> quizSolving;
     private boolean likeYN;
 
-    public static GetQuizDetailRes toDto(Quiz quiz, List<String> unitLists, List<String> quizUnitLists, List<GetSolvingRes> quizSolving, boolean likeYN) {
+    public static GetQuizDetailRes toDto(Quiz quiz, List<String> unitLists, List<GetSolvingRes> quizSolving, boolean likeYN) {
         return GetQuizDetailRes.builder()
                 .title(quiz.getTitle())
                 .content(quiz.getContent())
                 .type(quiz.getType())
                 .stackUnit(quiz.getStackUnit())
                 .unitLists(unitLists)
-                .quizUnitLists(quizUnitLists)
                 .quizSolving(quizSolving)
                 .likeYN(likeYN)
                 .build();
