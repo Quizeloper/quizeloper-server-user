@@ -117,7 +117,7 @@ public class QuizService {
     // 퀴즈 답안 & 해설 조회
     public GetQuizAnsRes getQuizAnswer(long userId, long quizId) {
         QuizHistory quizHistory= quizHistoryRepository.findFirstByQuizIdAndUserIdAndStatusOrderByCreatedDateDesc(quizId, userId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_HISTORY_NOT_FOUND));
-        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE);
+        Quiz quiz = quizRepository.findByIdAndStatus(quizId, ACTIVE).orElseThrow(() -> new BaseException(BaseResponseStatus.QUIZ_NOT_FOUND));
         return GetQuizAnsRes.toDto(quiz, quizHistory);
     }
 
