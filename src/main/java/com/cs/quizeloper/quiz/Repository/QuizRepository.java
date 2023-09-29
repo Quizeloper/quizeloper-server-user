@@ -1,4 +1,4 @@
-package com.cs.quizeloper.quiz.Repository;
+package com.cs.quizeloper.quiz.repository;
 
 import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.quiz.entity.Quiz;
@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
