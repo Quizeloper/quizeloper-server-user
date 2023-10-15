@@ -1,4 +1,4 @@
-package com.cs.quizeloper.user.Repository;
+package com.cs.quizeloper.user.repository;
 
 import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.user.entity.User;

@@ -1,9 +1,8 @@
-package com.cs.quizeloper.inquiry.Repository;
+package com.cs.quizeloper.inquiry.repository;
 
 import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.inquiry.entity.Inquiry;
 import com.cs.quizeloper.inquiry.entity.InquiryStatus;
-import com.cs.quizeloper.inquiry.entity.InquiryType;
 import com.cs.quizeloper.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

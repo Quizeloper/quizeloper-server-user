@@ -9,7 +9,7 @@ import com.cs.quizeloper.quiz.Repository.QuizRepository;
 import com.cs.quizeloper.quiz.Repository.QuizUnitRepository;
 import com.cs.quizeloper.quiz.entity.*;
 import com.cs.quizeloper.quiz.model.*;
-import com.cs.quizeloper.user.Repository.UserRepository;
+import com.cs.quizeloper.user.repository.UserRepository;
 import com.cs.quizeloper.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

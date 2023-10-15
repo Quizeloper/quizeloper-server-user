@@ -1,4 +1,4 @@
-package com.cs.quizeloper.quiz.Repository;
+package com.cs.quizeloper.quiz.repository;
 
 import com.cs.quizeloper.global.entity.BaseStatus;
 import com.cs.quizeloper.quiz.entity.QuizDashboard;
