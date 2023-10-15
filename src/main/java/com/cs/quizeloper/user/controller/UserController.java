@@ -10,8 +10,6 @@ import com.cs.quizeloper.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -93,42 +91,5 @@ public class UserController {
     @GetMapping("/mypage")
     public BaseResponse<MyPageRes> getMypage(@Account UserInfo userInfo){
         return new BaseResponse<>(userService.getMypage(userInfo.getId()));
-    }
-
-    // 스택별 좋아요 문제 불러오기
-    @GetMapping("/myQuizzes/{stack}/likes")
-    public BaseResponse<Page<GetUserQuizRes>> getMyQuizListByStack(@Account UserInfo userInfo, @PathVariable String stack, Pageable pageable) {
-        Page<GetUserQuizRes> myQuizzes = userService.getQuizListByStack(userInfo.getId(), stack, pageable);
-        return new BaseResponse<>(myQuizzes);
-    }
-
-    // 좋아요 문제 불러오기
-    @GetMapping("/myQuizzes/likes")
-    public BaseResponse<Page<GetUserQuizRes>> getMyQuizList(@Account UserInfo userInfo, Pageable pageable) {
-        Page<GetUserQuizRes> myQuizzes = userService.getQuizList(userInfo.getId(), pageable);
-        return new BaseResponse<>(myQuizzes);
-    }
-
-    // 스택별 맞춘/틀린 문제 조회
-    @GetMapping("/myQuizzes/{stack}/solving/{solStatus}")
-    public BaseResponse<Page<GetUserQuizHistoryRes>> getQuizHistoryByStack(@Account UserInfo userInfo, @PathVariable String stack,
-                                                                          @RequestParam(required = false) String sorting,
-                                                                          @PathVariable String solStatus, Pageable pageable) {
-        Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryListByStack(userInfo.getId(), stack, sorting, solStatus, pageable);
-        return new BaseResponse<>(quizHistory);
-    }
-
-    // 전체 맞춘/틀린 문제 조회
-    @GetMapping("/myQuizzes/solving/{solStatus}")
-    public BaseResponse<Page<GetUserQuizHistoryRes>> getQuizHistory(@Account UserInfo userInfo, @RequestParam(required = false) String sorting,
-                                                                          @PathVariable String solStatus, Pageable pageable) {
-        Page<GetUserQuizHistoryRes> quizHistory = userService.getQuizHistoryList(userInfo.getId(), sorting, solStatus, pageable);
-        return new BaseResponse<>(quizHistory);
-    }
-
-    // 내 퀴즈 요약
-    @GetMapping("/myQuizzes/{stack}")
-    public BaseResponse<GetMyQuizSummary> getMyQuizzesSummary(@Account UserInfo userInfo, @PathVariable String stack, @RequestParam String date) {
-        return new BaseResponse<>(userService.getQuizSummary(userInfo.getId(), stack, date));
     }
 }
